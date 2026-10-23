@@ -1,0 +1,8 @@
+{
+  "tag": "v1.0.1",
+  "name": "BlackForestShopDashboard-win-x64.zip",
+  "title": "Black Forest Shop Dashboard 1.0.1 (Windows)",
+  "url": "https://litter.catbox.moe/rw9tw8.zip",
+  "sha256": "85e336b447ef5f12177835c927e1d20263517074629fcff41cf982e7114c0683",
+  "notes": "Public Windows portable zip for Black Forest Shop Dashboard 1.0.1.\n\nSource stays private in bf-shop-dashboard. Unzip, run **Black Forest Shop Dashboard.vbs**, first PIN unlock is `000000` (change it).\n\n**Asset name is stable:** `BlackForestShopDashboard-win-x64.zip` (no version in the public filename).\n\nUI decorative images may be placeholders if baseline zip was unavailable at build time — functional package with Node 20.19.2 win-x64 runtime."
+}
