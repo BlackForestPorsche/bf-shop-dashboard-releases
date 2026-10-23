@@ -14,6 +14,16 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - name: Assemble b64 parts from chunks
+        run: |
+          set -euo pipefail
+          for p in 00 01 02 03 04; do
+            dir="artifacts/setup-b64/_chunks/part-$p"
+            if [ -d "$dir" ]; then
+              cat "$dir"/*.txt | tr -d '\n' > "artifacts/setup-b64/part-$p.b64"
+              wc -c "artifacts/setup-b64/part-$p.b64"
+            fi
+          done
       - name: Assemble assets, verify, create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
