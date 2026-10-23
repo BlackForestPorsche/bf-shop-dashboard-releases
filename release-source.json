@@ -1,8 +1,18 @@
 {
-  "tag": "v1.0.1",
-  "name": "BlackForestShopDashboard-win-x64.zip",
-  "title": "Black Forest Shop Dashboard 1.0.1 (Windows)",
-  "url": "https://litter.catbox.moe/rw9tw8.zip",
-  "sha256": "85e336b447ef5f12177835c927e1d20263517074629fcff41cf982e7114c0683",
-  "notes": "Public Windows portable zip for Black Forest Shop Dashboard 1.0.1.\n\nSource stays private in bf-shop-dashboard. Unzip, run **Black Forest Shop Dashboard.vbs**, first PIN unlock is `000000` (change it).\n\n**Asset name is stable:** `BlackForestShopDashboard-win-x64.zip` (no version in the public filename).\n\nUI decorative images may be placeholders if baseline zip was unavailable at build time — functional package with Node 20.19.2 win-x64 runtime."
+  "tag": "v1.0.2",
+  "title": "Black Forest Shop Dashboard 1.0.2 (Windows Setup + Portable)",
+  "notes": "Primary: **Black.Forest.Shop.Dashboard-Setup.exe** \u2014 one-click Windows install (same spirit as Tools Setup):\n\n- Clones/updates `%USERPROFILE%\\\\bf-shop-dashboard` from `main`\n- Desktop + Start Menu shortcuts\n- 30-minute git auto-update (`BlackForestShopDashboardUpdate`)\n- Settings \u2192 Check for updates\n- Optional login autostart\n\nPrivate source repo: sign in to GitHub as BlackForestPorsche (or collaborator). No secrets in the Setup.\n\nSecondary: **BlackForestShopDashboard-win-x64.zip** \u2014 Portable (unzip + VBS; no git auto-update).\n\nDashboard package version **1.0.2**.",
+  "assets": [
+    {
+      "name": "Black.Forest.Shop.Dashboard-Setup.exe",
+      "parts_dir": "artifacts/setup-b64",
+      "encoding": "base64-parts",
+      "sha256": "206583c0a77999d3a7f13a7e8be9ee614823980bab997c8dcb7309bb4ebd1137"
+    },
+    {
+      "name": "BlackForestShopDashboard-win-x64.zip",
+      "url": "https://github.com/BlackForestPorsche/bf-shop-dashboard-releases/releases/download/v1.0.1/BlackForestShopDashboard-win-x64.zip",
+      "sha256": "85e336b447ef5f12177835c927e1d20263517074629fcff41cf982e7114c0683"
+    }
+  ]
 }

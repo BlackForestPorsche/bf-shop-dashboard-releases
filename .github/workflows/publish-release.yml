@@ -1,0 +1,81 @@
+name: Publish Windows release
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/publish-release.yml"
+      - ".github/workflows/publish-zip.yml"
+      - "release-source.json"
+      - "artifacts/**"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble b64 parts from chunks
+        run: |
+          set -euo pipefail
+          for p in 00 01 02 03 04; do
+            dir="artifacts/setup-b64/_chunks/part-$p"
+            if [ -d "$dir" ]; then
+              cat "$dir"/*.txt | tr -d '\n' > "artifacts/setup-b64/part-$p.b64"
+              wc -c "artifacts/setup-b64/part-$p.b64"
+            fi
+          done
+      - name: Commit assembled part files
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/setup-b64/part-*.b64
+          if git diff --cached --quiet; then
+            echo "No part file changes to commit"
+          else
+            git commit -m "Assemble Setup.exe b64 parts from chunks [skip ci]"
+            git push
+          fi
+      - name: Assemble assets, verify, create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          SRC=release-source.json
+          TAG=$(jq -r .tag "$SRC")
+          TITLE=$(jq -r .title "$SRC")
+          NOTES=$(jq -r .notes "$SRC")
+          mkdir -p /tmp/assets
+          FILES=()
+          COUNT=$(jq '.assets | length' "$SRC")
+          for i in $(seq 0 $((COUNT - 1))); do
+            NAME=$(jq -r ".assets[$i].name" "$SRC")
+            SHA=$(jq -r ".assets[$i].sha256" "$SRC")
+            PATH_REL=$(jq -r ".assets[$i].path // empty" "$SRC")
+            PARTS_DIR=$(jq -r ".assets[$i].parts_dir // empty" "$SRC")
+            URL=$(jq -r ".assets[$i].url // empty" "$SRC")
+            ENC=$(jq -r ".assets[$i].encoding // empty" "$SRC")
+            OUT="/tmp/assets/$NAME"
+            if [ -n "$PARTS_DIR" ] && [ -d "$PARTS_DIR" ]; then
+              cat "$PARTS_DIR"/part-*.b64 | tr -d '\n' | base64 -d > "$OUT"
+            elif [ -n "$PATH_REL" ] && [ -f "$PATH_REL" ]; then
+              if [ "$ENC" = "base64" ] || [[ "$PATH_REL" == *.b64 ]]; then
+                base64 -d "$PATH_REL" > "$OUT"
+              else
+                cp "$PATH_REL" "$OUT"
+              fi
+            elif [ -n "$URL" ]; then
+              curl -fsSL -o "$OUT" "$URL"
+            else
+              echo "Asset $NAME needs path, parts_dir, or url" >&2
+              exit 1
+            fi
+            echo "$SHA  $OUT" | sha256sum -c
+            file "$OUT"
+            FILES+=("$OUT")
+          done
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --yes
+            git push origin ":refs/tags/$TAG" || true
+          fi
+          gh release create "$TAG" "${FILES[@]}" --title "$TITLE" --notes "$NOTES"
